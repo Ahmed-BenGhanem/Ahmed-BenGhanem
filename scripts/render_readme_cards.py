@@ -2,8 +2,9 @@
 """
 Render the profile README's cards as animated SVGs into cards/.
 
-Design: "Three Worlds", customized for Ahmed Ben Ghanem (Bo7mid_BG) — AI Engineering Student.
-(paper, ink, and one colour per world: RESEARCH blue, MODELS red, SYSTEMS amber/gold;
+Design: "Three Worlds", customized for Ahmed Ben Ghanem (Ahmed BG) —
+First-Year AI Engineering Student (1ère année Cycle Ingénieur IA).
+(paper, ink, and one colour per world: PROGRAMMING blue, DEVELOPMENT red, FOUNDATIONS gold;
 Instrument Serif, Geist, Geist Mono embedded as base64 WOFF data URIs).
 
 Every card is a standalone SVG shown through <img>, so it uses inline CSS animations,
@@ -168,12 +169,12 @@ def hero():
 <rect width="{W}" height="{h}" rx="14" fill="{PAPER}"/>
 <g class="f" {d(0)}>
   <rect class="live" x="48" y="49" width="8" height="8" rx="2" fill="{TECH}"/>
-  <text x="66" y="57" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">AI ENGINEERING STUDENT  ·  BO7MID_BG</text>
+  <text x="66" y="57" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">1ST YEAR AI ENGINEERING STUDENT  ·  AHMED BG</text>
 </g>
 <text class="r" {d(0.15)} x="44" y="185" font-family="{SERIF}" font-size="112" letter-spacing="-2.5" fill="{INK}">Ahmed</text>
 <text class="r" {d(0.3)} x="44" y="282" font-family="{SERIF}" font-style="italic" font-size="96" letter-spacing="-2.5" fill="url(#shine)">Ben Ghanem</text>
 <g class="r" {d(0.55)}>
-  {text_lines(48, 336, ["I engineer deep neural architectures, vision systems,", "and autonomous LLM agents."], 27, f'font-family="{SANS}" font-size="18" fill="{INK_SOFT}"')}
+  {text_lines(48, 336, ["First-year AI engineering student focused on algorithms,", "object-oriented programming, data foundations, and web dev."], 27, f'font-family="{SANS}" font-size="18" fill="{INK_SOFT}"')}
 </g>
 <g class="f" {d(0.8)}>
   <text x="48" y="396" font-family="{MONO}" font-size="13" fill="{INK}">github.com/Ahmed-BenGhanem</text>
@@ -184,7 +185,7 @@ def hero():
 </g>
 """
     write("hero.svg", svg(W, h, body, ["serif", "serif-i", "sans", "mono"],
-                          "Ahmed Ben Ghanem (Bo7mid_BG). AI Engineering Student. I engineer deep neural architectures, vision systems, and autonomous LLM agents."))
+                          "Ahmed Ben Ghanem (Ahmed BG). 1st Year AI Engineering Student. Focused on algorithms, object-oriented programming, data foundations, and web dev."))
 
 
 # ---- 2 · world tiles ----------------------------------------------------------
@@ -299,25 +300,25 @@ def activity(data):
                               f'{data["total_contributions"]:,} contributions in the last year, {cs}-day streak'))
 
 
-# ---- 4 · repo cards -----------------------------------------------------------
+# ---- 4 · coursework & project cards -------------------------------------------
 REPO_W, REPO_H = 880 / 3 - 8, 176
 REPOS = [
-    ("vision-transformers-lab", "Deep computer vision pipelines, semantic segmentation & ViT experiments in PyTorch.", "Python · PyTorch", TECH),
-    ("autonomous-rag-agent", "Multi-agent LLM orchestration with LangChain, Ollama & hybrid vector retrieval.", "Python · LangChain", STUDIO),
-    ("neural-inference-engine", "Low-latency model deployment, quantization benchmarks & CUDA-accelerated MLOps.", "C++ · CUDA · Docker", LEARN),
+    ("algorithms-and-oop", "Data structures, algorithmic problem solving, and object-oriented programming in C, C++ and Java.", "C / C++  ·  Java  ·  OOP", TECH),
+    ("python-and-data-foundations", "Python programming, applied engineering mathematics, probability, statistics, and data basics.", "Python  ·  Math  ·  AI Cycle", STUDIO),
+    ("web-and-database-systems", "Web development, relational database design (SQL), UML modeling, Linux systems, and Git.", "SQL  ·  Web  ·  Linux & Git", LEARN),
 ]
 
 
 def repo_card(i, name, desc, lang, color, stars):
     delay = 4.6 + i * 0.12
-    meta = f"{lang}  ·  ★ {stars}" if stars else f"{lang}  ·  active R&D"
+    meta = f"{lang}  ·  ★ {stars}" if stars else lang
     body = f"""
 <rect width="{REPO_W}" height="{REPO_H}" rx="14" fill="{PAPER}"/>
 <g class="r" {d(delay)}>
   <rect x="24" y="30" width="8" height="8" rx="2" fill="{color}"/>
-  <text x="40" y="39" font-family="{SANS}" font-weight="600" font-size="17" fill="{INK}">{escape(name)}</text>
+  <text x="40" y="39" font-family="{SANS}" font-weight="600" font-size="16" fill="{INK}">{escape(name)}</text>
   {text_lines(24, 72, wrap(desc, 34), 21, f'font-family="{SANS}" font-size="14" fill="{INK_SOFT}"')}
-  <text x="24" y="{REPO_H - 24}" font-family="{MONO}" font-size="12" fill="{MUTED}">{escape(meta)}</text>
+  <text x="24" y="{REPO_H - 24}" font-family="{MONO}" font-size="11.5" fill="{MUTED}">{escape(meta)}</text>
 </g>
 """
     write(f"repo-{name}.svg", svg(REPO_W, REPO_H, body, ["sans", "sans-b", "mono"], f"{name}: {desc}",
@@ -376,7 +377,7 @@ def heatmap(data):
     h = gy + 7 * step + 44
     body = f"""
 <rect width="{W}" height="{h}" rx="14" fill="{PAPER}"/>
-<text class="r" {d(0.8)} x="42" y="62" font-family="{SERIF}" font-size="34" fill="{INK}">Every day, <tspan font-style="italic" fill="{TECH}">in neural blue</tspan></text>
+<text class="r" {d(0.8)} x="42" y="62" font-family="{SERIF}" font-size="34" fill="{INK}">Every day, <tspan font-style="italic" fill="{TECH}">in blue</tspan></text>
 <text class="f" {d(0.8)} x="{right}" y="60" text-anchor="end" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">REFRESHED DAILY</text>
 {''.join(cells)}
 <g class="f" {d(2.4)}>{labels}
@@ -405,16 +406,16 @@ def repo_stars():
 if __name__ == "__main__":
     data = json.load(open(DATA, encoding="utf-8"))
     hero()
-    tile("research", "RESEARCH", TECH, "#ffffff", "4+", "domains",
-         "Deep Learning, Computer Vision, Vision Transformers (ViT) & Neural Architectures.", 3.1, 0)
-    tile("models", "MODELS", STUDIO, "#ffffff", "10+", "pipelines",
-         "Autonomous LLM Agents, Multi-Agent RAG Systems & Fine-Tuned Transformers.", 3.35, 1)
-    tile("systems", "SYSTEMS", LEARN, INK, "100%", "production",
-         "PyTorch, CUDA acceleration, Docker containers & reproducible MLOps workflows.", 3.6, 2)
+    tile("research", "PROGRAMMING", TECH, "#ffffff", "4", "languages",
+         "C, C++, Java (OOP) & Python — algorithms, data structures, and problem solving.", 3.1, 0)
+    tile("models", "DEVELOPMENT", STUDIO, "#ffffff", "3", "core stacks",
+         "Desktop & web application development with Java, HTML/CSS, JavaScript, and PHP.", 3.35, 1)
+    tile("systems", "FOUNDATIONS", LEARN, INK, "1st", "year AI cycle",
+         "Engineering mathematics, SQL databases, UML design, Linux systems & Git workflows.", 3.6, 2)
     activity(data)
     stars = repo_stars()
     for i, (name, desc, lang, color) in enumerate(REPOS):
         repo_card(i, name, desc, lang, color, stars.get(name, 0))
-    section_title("What I'm", "engineering", "dark")
-    section_title("What I'm", "engineering", "light")
+    section_title("What I'm", "studying & building", "dark")
+    section_title("What I'm", "studying & building", "light")
     heatmap(data)

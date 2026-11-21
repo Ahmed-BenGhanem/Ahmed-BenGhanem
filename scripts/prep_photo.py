@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Prepare the profile avatar (noir fedora silhouette with newspaper under streetlights)
-for clean, high-contrast ASCII conversion:
-  1. Convert to grayscale and stretch tones
-  2. Apply Difference-of-Gaussians local edge enhancement so the fedora silhouette,
-     newspaper folds/text, and streetlamp posts pop clearly at ASCII resolution
-  3. Apply a clean circular vignette mask onto white (255) so the portrait floats
-     cleanly without a boxy background border.
+Prepare the current GitHub profile avatar (AHMED BG Crown Emblem)
+for clean, high-contrast monochrome ASCII conversion:
+  1. Load source-photo.png (dark background with bright crown & AHMED BG emblem)
+  2. Invert luminance so the dark background becomes pure white (blank space in ASCII)
+     and the bright crown + AHMED BG lettering become dark ink (dense ASCII chars)
+  3. Apply local contrast & morphological sharpening so both the crown geometry and
+     the "AHMED BG" typography read clearly at ASCII resolution.
 """
 import os
 import sys
@@ -19,35 +19,32 @@ OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "source-pre
 
 
 def prep():
-    im = Image.open(INP).convert("L")
-    w, h = im.size
+    im_rgb = Image.open(INP).convert("RGB")
+    w, h = im_rgb.size
+    rgb = np.array(im_rgb, dtype=np.float32) / 255.0
+    r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
 
-    # Smooth fine noise while preserving edges
-    smooth_im = im.filter(ImageFilter.MedianFilter(size=3))
-    arr = np.array(smooth_im, dtype=np.float32)
+    # Perceived brightness of the emblem on dark background
+    lum = 0.299 * r + 0.587 * g + 0.114 * b
 
-    # Local contrast (Difference of Gaussians) to highlight fedora, newspaper text & lamps
-    fine = np.array(smooth_im.filter(ImageFilter.GaussianBlur(radius=1.5)), dtype=np.float32)
-    coarse = np.array(smooth_im.filter(ImageFilter.GaussianBlur(radius=10.0)), dtype=np.float32)
-    dog = np.clip((coarse - fine) / 28.0, -0.5, 1.0)
-
-    # Global tone stretch
-    lo, hi = np.percentile(arr, [5, 96])
-    tone = np.clip((arr - lo) / max(hi - lo, 1.0), 0.0, 1.0)
-
-    # Brighten mid-tones slightly so misty background clears out while dark silhouette & ridges stay strong
-    tone = np.power(tone, 0.72)
-    enhanced = np.clip(tone - 0.55 * np.clip(dog, 0, 1), 0.0, 1.0)
-
-    # Circular feathered mask so the portrait floats cleanly on paper background
+    # Circular mask to remove outer background diagonal stripes
     yy, xx = np.ogrid[:h, :w]
     cx, cy = w / 2.0, h / 2.0
-    r = np.sqrt((xx - cx) ** 2 + (yy - cy) ** 2) / (min(w, h) * 0.47)
-    mask = np.clip((1.0 - r) / 0.12, 0.0, 1.0)
+    dist = np.sqrt((xx - cx) ** 2 + (yy - cy) ** 2) / (min(w, h) * 0.46)
+    circle_mask = np.clip((1.0 - dist) / 0.06, 0.0, 1.0)
 
-    # Composite onto white (255)
-    final = (enhanced * mask + 1.0 * (1.0 - mask)) * 255.0
-    out_im = Image.fromarray(final.astype(np.uint8), mode="L")
+    # Clear out dark background (< 0.17) to 0, keep bright crown & text
+    fg = np.where(lum < 0.17, 0.0, lum) * circle_mask
+
+    # Stretch foreground brightness to [0, 1]
+    fg = np.clip((fg - 0.12) / 0.78, 0.0, 1.0)
+
+    # Invert so foreground emblem is dark ink (0.0) on white paper (1.0)
+    paper = 1.0 - fg
+
+    # Enhance edges slightly for crisp ASCII characters
+    out_im = Image.fromarray((paper * 255.0).astype(np.uint8), mode="L")
+    out_im = out_im.filter(ImageFilter.SHARPEN)
     out_im.save(OUT)
     print(f"wrote {OUT} ({w}x{h})")
 
